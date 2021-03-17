@@ -22,7 +22,8 @@ public class HelloSecureService {
     public static void main(String[] args) {
         //API: secure(keystoreFilePath, keystorePassword, truststoreFilePath, truststorePassword);
         secure("keystores/ecikeystore.p12", "123456", "keystores/myTrustStore", "654321");
-        port(getPort());
+        System.out.println(getPort());
+	port(getPort());
         staticFiles.location("/public");
         get("/helloservice", (req, res) -> {
             return "Hello from secure service";
