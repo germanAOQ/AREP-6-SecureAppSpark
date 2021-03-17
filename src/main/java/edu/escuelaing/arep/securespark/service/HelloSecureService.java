@@ -1,7 +1,17 @@
 package edu.escuelaing.arep.securespark.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import com.mongodb.*;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.util.JSON;
+import edu.escuelaing.arep.securespark.model.User;
 
+import javax.swing.text.Document;
+import javax.xml.bind.DatatypeConverter;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 
 import static spark.Spark.*;
@@ -19,8 +29,60 @@ public class HelloSecureService {
         });
         get("/actualtime", (req, res) -> {
             LocalDate localdate = new Gson().fromJson(readURL("https://localhost:4567/actualtime"), LocalDate.class);
-            return new Gson().toJson(localdate);
+            //return new Gson().toJson(localdate);
+
+            return  "<!DOCTYPE html>\n"
+                    + "<html>\n"
+                    + "<head>\n"
+                    + "<meta charset=\"UTF-8\">\n"
+                    + "<title>Title of the document</title>\n"
+                    + "</head>\n"
+                    + "<body>\n"
+                    + "<h1>Año: "+localdate.getYear()+"</h1>\n"
+                    + "<h1>Mes: "+localdate.getMonthValue()+"</h1>\n"
+                    + "<h1>Dia: "+localdate.getDayOfMonth()+"</h1>\n"
+                    + "</body>\n"
+                    + "</html>\n";
+
         });
+        post("/adduser", (req, res) -> {
+            User user = new Gson().fromJson(req.body(), User.class);
+            String passwordEncoded = getMD5Hash(user.getPassword());
+            user.setPassword(passwordEncoded);
+            String json = new ObjectMapper().writeValueAsString(user);
+            MongoClient mongo = new MongoClient("ec2-35-175-129-50.compute-1.amazonaws.com", 27017);
+            DB db = mongo.getDB("credentials");
+            DBCollection collection = db.getCollection("user");
+            DBObject dbObject = (DBObject) JSON.parse(json);
+            collection.insert(dbObject);
+            res.status(201);
+            System.out.println(user.getName());
+            System.out.println(user.getPassword());
+            return true;
+        });
+        post("/loginuser", (req, res) -> {
+            boolean respuesta = false;
+            User user = new Gson().fromJson(req.body(), User.class);
+            MongoClient mongo = new MongoClient("ec2-35-175-129-50.compute-1.amazonaws.com", 27017);
+            DB db = mongo.getDB("credentials");
+            DBCollection collection = db.getCollection("user");
+            for(DBObject cur: collection.find()){
+                boolean cond = cur.get("name").equals(user.getName()) && cur.get("password").equals(getMD5Hash(user.getPassword()));
+                if(cond){
+                    respuesta = true;
+                }
+            }
+            res.status(200);
+            return respuesta;
+        });
+    }
+
+    static String getMD5Hash(String password) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        md.update(password.getBytes());
+        byte[] digest = md.digest();
+        String hash = DatatypeConverter.printHexBinary(digest).toUpperCase();
+        return hash;
     }
 
     static int getPort() {

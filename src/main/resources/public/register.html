@@ -1,5 +1,4 @@
 <html>
-
 <head>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
@@ -14,6 +13,8 @@
 
 
 
+
+
     </style>
 </head>
 <body>
@@ -21,51 +22,52 @@
     <div class="row">
         <div class="col">
         </div>
-        <div class="d-grid gap-2 col-6">
+        <div id="formaContainer" class="d-grid gap-2 col-6">
             <br><br>
-            <form id="forma" name="loginForm" action="javascript:login()">
-                <h1 id="title">Login</h1><br><br>
+            <form id="forma" name="loginForm" action="javascript:registrar()">
+                <h1 id="title">Register</h1><br><br>
                 <input type="text" placeholder="Username" class="form-control" id="name"><br>
                 <input type="password" placeholder="Password" class="form-control" id="password"><br>
-                <input type="submit" class="btn btn-primary" value="Sign in">
+                <input type="password" placeholder="Confirm Password" class="form-control" id="passwordConfirm"><br>
+                <input type="submit" class="btn btn-primary" value="Register">
             </form>
             <br>
-            <div class="d-grid gap-2">
-                <button class="btn btn-primary" type="button" onclick="location.href='register.html'">Create an account</button>
-            </div>
         </div>
         <div class="col">
         </div>
     </div>
 </div>
-
-<script type="text/javascript">
-    var res = null;
-    function login(){
+<script>
+    var tried = false;
+    function registrar(){
         var username = $("#name").val();
         var password = $("#password").val();
-        var usuario = {"name":username, "password":password};
-        $.ajax({
+        var passwordConfirm = $("#passwordConfirm").val();
+        if(password!=passwordConfirm){
+            tried = true;
+            $("#formaContainer").append("<div id='aviso' class='alert alert-primary' role='alert'>The passwords didn't match. Try again</div>");
+        }else{
+            if(tried){
+                tried = false;
+                $("#aviso").remove();
+            }
+            var usuario = {"name":username, "password":password};
+            $.ajax({
                 method: "POST",
                 data: JSON.stringify(usuario),
-                url: "/loginuser",
+                url: "/adduser",
                 contentType: 'application/json',
                 success: function(data){
-                    if(data === "true"){
-                        location.href='actualtime'
-                    }
+                    $("#formaContainer").append("<div class='alert alert-primary' role='alert'>You have been successfully registered</div>");
                 },
             });
+        }
+        $("#name").val("");
+        $("#password").val("");
+        $("#passwordConfirm").val("");
     }
 
 
-
-
-
-
-
 </script>
-
 </body>
-
 </html>
