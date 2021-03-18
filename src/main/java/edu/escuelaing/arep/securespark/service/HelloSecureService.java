@@ -21,15 +21,17 @@ public class HelloSecureService {
 
     public static void main(String[] args) {
         //API: secure(keystoreFilePath, keystorePassword, truststoreFilePath, truststorePassword);
-        secure("keystores/ecikeystore.p12", "123456", "keystores/myTrustStore", "654321");
+        secure("keystores/ecikeystore.p12", "123456",null,null);
         System.out.println(getPort());
-	port(getPort());
+	    port(getPort());
         staticFiles.location("/public");
         get("/helloservice", (req, res) -> {
             return "Hello from secure service";
         });
         get("/actualtime", (req, res) -> {
-            LocalDate localdate = new Gson().fromJson(readURL("https://localhost:4567/actualtime"), LocalDate.class);
+            System.out.println("Entré aquí");
+            LocalDate localdate = new Gson().fromJson(readURL("https://ec2-34-207-211-53.compute-1.amazonaws.com:34000/actualtime"), LocalDate.class);
+            System.out.println(localdate.getYear());
             //return new Gson().toJson(localdate);
 
             return  "<!DOCTYPE html>\n"

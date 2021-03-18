@@ -18,7 +18,7 @@ public class SecureURLReader {
     public static void main(String[] args) throws KeyStoreException, IOException, NoSuchAlgorithmException, KeyManagementException, CertificateException {
         // Create a file and a password representation
         File trustStoreFile = new File("keystores/myTrustStore");
-        char[] trustStorePassword = "654321".toCharArray();
+        char[] trustStorePassword = "abcdef".toCharArray();
 
         // Load the trust store, the default type is "pkcs12", the alternative is "jks"
         KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
@@ -42,11 +42,14 @@ public class SecureURLReader {
         // This one can't be read because the Java default truststore has been
         // changed.
         //readURL("https://www.google.com");
+
+        readURL("https://ec2-34-207-211-53.compute-1.amazonaws.com:4567/actualtime");
     }
 
     public static String readURL(String site) throws IOException, KeyStoreException, CertificateException, NoSuchAlgorithmException, KeyManagementException {
+
         File trustStoreFile = new File("keystores/myTrustStore");
-        char[] trustStorePassword = "654321".toCharArray();
+        char[] trustStorePassword = "abcdef".toCharArray();
 
         // Load the trust store, the default type is "pkcs12", the alternative is "jks"
         KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
@@ -63,6 +66,7 @@ public class SecureURLReader {
         SSLContext sslContext = SSLContext.getInstance("TLS");
         sslContext.init(null, tmf.getTrustManagers(), null);
         SSLContext.setDefault(sslContext);
+
 
         // Crea el objeto que representa una URL
         URL siteURL = new URL(site);
