@@ -14,11 +14,11 @@ Para hacer uso del software es necesario tener instalado:
 ### Índice
 * [Introducción](#introducción) 
 * [Estructura de archivos](#estructura-de-archivos)
-    * [Login Service]
-    * [Other Service]
+    * [Login Service](#login-service)
+    * [Other Service](#other-service)
 * [Diseño de la aplicación](#diseño-de-la-aplicación) 
-    * [Login Service]
-    * [Other Service]
+    * [Login Service](#login-service-1)
+    * [Other Service](#other-service-1)
 * [Arquitectura de la aplicación](#arquitectura-de-la-aplicación) 
 * [Despliegue de la aplicación](#despliegue-de-la-aplicación)
 * [Ejecución de la aplicación](#ejecución-de-la-aplicación)
@@ -31,20 +31,88 @@ La aplicación desarrollada, garantiza el principio de "Complete mediation" desd
 video que muestra la ejecución y la implementación de las medidas de seguridad a la aplicación. 
 
 ### Estructura de archivos 
-
+En esta sección se presenta la estructura del directorio src de los dos servicios, el login service y el other service.
 #### Login Service 
- 
+```
+├───src
+    ├───main
+    │   ├───java
+    │   │   └───edu
+    │   │       └───escuelaing
+    │   │           └───arep
+    │   │               └───securespark
+    │   │                   ├───connection
+    │   │                   ├───model
+    │   │                   └───service
+    │   └───resources
+    │       └───public
+    └───test
+        └───java
+            └───edu
+                └───escuelaing
+                    └───arep
+                        └───securespark
+```
 #### Other Service
-
+```
+├───src
+    ├───main
+    │   └───java
+    │       └───edu
+    │           └───escuelaing
+    │               └───arep
+    │                   └───securespark
+    │                       └───service
+    └───test
+        └───java
+            └───edu
+                └───escuelaing
+                    └───arep
+                        └───securespark
+```
 ### Diseño de la aplicación 
-
-#### Login Service 
-
-#### Other Service 
-
+A través de dos diagramas de clases, uno por cada servicio, se presenta el diseño de la aplicación
+#### Login Service                                                     
+![](images/Class_Diagram_LoginService.png)                                             
+#### Other Service                                           
+![](images/Class_Diagram_OtherService.png)                                                  
 ### Arquitectura de la aplicación 
-
-### Despliegue de la aplicación 
+![](images/Deployment_Diagram.png)
+Como se puede apreciar en la imagen, el cliente puede interactuar con el login server a través del cliente web (fachada) que provee este servicio. El servicio principal tambien cuenta con un cliente mongodb para hacer peticiones e inserciones a esta base de datos NoSQL. Se genera una conexión HTTP segura (HTTPS) entre el cliente y LoginService,
+a través del puerto 5000, e igualmente entre LoginService y Otherservice, a través del puerto 34000, gracias al uso de KeyStores y Truststores que almacenan las llaves privadas y públicas, respectivamente. Estos almacenes de llaves se crean con la herramienta keytool. 
+### Despliegue de la aplicación en EC2
+1. Cree dos máquinas virtuales con el servicio EC2 de AWS:
+![](images/parte1.PNG)
+2. Conectese a través de un cliente ssh a cada una de las máquinas utilizando los dos .pem:
+![](images/parte2.PNG)
+3. Clone el repositorio del login service en la primera máquina:
+```
+git clone https://github.com/germanAOQ/AREP-6-SecureAppSpark
+```
+4. Clone el repositorio del other service en la segunda máquina:
+```
+git clone https://github.com/germanAOQ/AREP-6-SecureAppSpark-OtherService
+```
+5. En la primerá máquina acceda al repositorio ya clonado y modifique la linea en donde se solicita la ip o el dns de la segunda máquina, esto para consumir 
+el servicio REST de other service. Adicionalmente, si ya tiene una base de datos mongodb desplegada, modifique la dirección y el puerto del cliente mongo:
+![](images/parte3_1.PNG)
+![](images/parte3_2.PNG)
+6. Compile los dos proyectos desde la raiz de estos:
+```
+mvn clean install
+```
+7. Inicie el primer servidor en la raiz del proyecto:
+![](images/parte4.PNG)
+```
+java -cp "target/classes:target/dependency/*" edu.escuelaing.arep.securespark.service.HelloSecureService
+```
+8. Inicie el segundo servidor en la raiz del proyecto:
+![](images/parte5.PNG)
+```
+java -cp "target/classes:target/dependency/*" edu.escuelaing.arep.securespark.service.DateSecureService
+```
+9. Ingrese con el dns del primer servidor y el puerto 5000 a la fachada de la aplicación
+![](images/parte6.PNG)
 
 ### Ejecución de la aplicación 
 https://youtu.be/0SN1-E1yA8Y
