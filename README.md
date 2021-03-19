@@ -19,3 +19,6 @@ La aplicación desarrollada, garantiza el principio de "Complete mediation" desd
 que alojan un servidor, desarrollado con SparkJava, con los servicios propios de la aplicación. El código fuente de los servicios está disponible en dos repositorios GitHub, uno
 por cada servicio. Más adelante, se explicará, con mayor detalle técnico, la estructura de archivos, el diagrama de clases y la arquitectura de la aplicación, junto con un
 video que muestra la ejecución y la implementación de las medidas de seguridad a la aplicación. 
+
+### Ejecución de la aplicación
+https://youtu.be/0SN1-E1yA8Y
