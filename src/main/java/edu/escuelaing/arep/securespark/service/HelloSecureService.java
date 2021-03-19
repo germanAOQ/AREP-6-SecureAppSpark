@@ -7,6 +7,7 @@ import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.util.JSON;
 import edu.escuelaing.arep.securespark.model.User;
+import spark.Spark;
 
 import javax.swing.text.Document;
 import javax.xml.bind.DatatypeConverter;
@@ -15,9 +16,12 @@ import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 
 import static spark.Spark.*;
+import static spark.Spark.before;
 import static edu.escuelaing.arep.securespark.connection.SecureURLReader.readURL;
 
 public class HelloSecureService {
+
+    private static boolean authenticated = false;
 
     public static void main(String[] args) {
         //API: secure(keystoreFilePath, keystorePassword, truststoreFilePath, truststorePassword);
@@ -25,6 +29,14 @@ public class HelloSecureService {
         System.out.println(getPort());
 	    port(getPort());
         staticFiles.location("/public");
+
+        before("/actualtime",((request, response) ->{
+            String res = null;
+            if(!authenticated){
+                halt(401, "<h1>There isn't a session opened</h1>");
+            }
+        }));
+
         get("/helloservice", (req, res) -> {
             return "Hello from secure service";
         });
@@ -48,6 +60,7 @@ public class HelloSecureService {
                     + "</html>\n";
 
         });
+
         post("/adduser", (req, res) -> {
             User user = new Gson().fromJson(req.body(), User.class);
             String passwordEncoded = getMD5Hash(user.getPassword());
@@ -75,6 +88,7 @@ public class HelloSecureService {
                     respuesta = true;
                 }
             }
+            authenticated = true;
             res.status(200);
             return respuesta;
         });
